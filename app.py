@@ -1,12 +1,22 @@
-from flask import Flask
+"""Flask application with embedded chatbot and analytics"""
+from flask_bootstrap import Bootstrap
+from flask import Flask, render_template
+
 
 app = Flask(__name__)
+bootstrap = Bootstrap(app)
 
 
 @app.route('/')
-def hello_world():  # put application's code here
-    return 'Hello World!'
+def index():
+    return render_template('index.html')
 
 
-if __name__ == '__main__':
-    app.run()
+@app.route('/analytics')
+def user(name):
+    return render_template('analytics.html', name=name)
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
