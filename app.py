@@ -13,8 +13,8 @@ def index():
 
 
 @app.route('/analytics')
-def user(name):
-    return render_template('analytics.html', name=name)
+def user():
+    return render_template('analytics.html')
 
 
 @app.errorhandler(404)
