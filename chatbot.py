@@ -12,8 +12,14 @@ moment = Moment(app)
 app.config['SECRET_KEY'] = 'bdqVBWEsRebA4d@GiXm7'
 
 
-class Chatbot(FlaskForm):
+class NameForm(FlaskForm):
     name = StringField('What is your name?', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
+
+class Chatbot(FlaskForm):
+    response = StringField('How are you feeling today?',
+                           validators=[DataRequired()])
     submit = SubmitField('Submit')
 
 
@@ -24,17 +30,21 @@ def page_not_found(e):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    form = NameForm()
     name = None
-    form = Chatbot()
+    instr = "Please proceed to the Chatbot"
     if form.validate_on_submit():
         name = form.name.data
-        form.name.data = ''
-    return render_template('index.html', form=form, name=name)
+    return render_template('index.html', form=form, name=name, instr=instr)
 
 
-@app.route('/analytics')
-def analytics():
-    return render_template('analytics.html')
+@app.route('/chatbot', methods=['GET', 'POST'])
+def chatbot():
+    form = Chatbot()
+    response = None
+    if form.validate_on_submit():
+        response = form.response.data
+    return render_template('chatbot.html', form=form, response=response)
 
 
 if __name__ == '__main__':
