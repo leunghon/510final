@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Chatbot{% endblock %}
+
+{% block page_content %}
+    <style>
+        #chat-container {
+            width: 400px;
+            border: 1px solid #ccc;
+            padding: 20px;
+            background-color: #eee;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 20px auto;
+        }
+        #chat {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 5px;
+        }
+    </style>
+
+    <div id="thank-you-message" style="display: none;">Thank you for your feedback!</div>
+    <div id="chat-container">
+        <div id="chat"></div>
+        <input type="text" id="message" placeholder="Type your message here" onkeydown="if(event.key === 'Enter') sendMessage();">
+    </div>
+
+
+    <script>
+        let userId = Date.now();
+        const chat = document.getElementById('chat');
+        const messageInput = document.getElementById('message');
+
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (message === '') return;
+            
+            appendMessage(`You: ${message}`, 'right');
+            messageInput.value = '';
+
+            const formData = new FormData();
+            formData.append('message', message);
+            formData.append('user_id', userId);
+
+            fetch('/ask', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => appendMessage(`Chatbot: ${data.reply}`, 'left'))
+            .catch(error => console.error('Error:', error));
+        }
+
+        function appendMessage(text, align) {
+            const messageElement = document.createElement('div');
+            messageElement.textContent = text;
+            messageElement.style.textAlign = align;
+            chat.appendChild(messageElement);
+            chat.scrollTop = chat.scrollHeight;
+
+            if (text === 'Chatbot: Thank you for your feedback!') {
+                setTimeout(closeDialog, 2000); // Wait for 2 seconds before closing the dialog
+            }
+        }
+        
+        function closeDialog() {
+            document.getElementById('chat-container').style.display = 'none';
+            document.getElementById('thank-you-message').style.display = 'block';
+        }
+
+
+        // Start by asking the user for their name
+        appendMessage("Chatbot: What's your name?", 'left');
+    </script>
+{% endblock %}
